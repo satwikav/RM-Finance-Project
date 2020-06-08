@@ -1,0 +1,1549 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}D:\Personal\Desktop\GitHub\Project2019_Sanxing_Satwika.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}29 Mar 2020, 14:07:31
+{txt}
+{com}. 
+. 
+. 
+. ********************************************************************************
+. * Correlation between economic development and microfinance sector
+. * State-wise simple linear regression
+. * Data source: SHG report(2009-2013);BMR MFI report(2009-2013);
+. *              Reserve Bank of India statistic publications
+. ********************************************************************************
+. 
+. use "State_Stata13.dta", clear 
+{txt}
+{com}. 
+. set more off
+{txt}
+{com}. 
+. ***************************************
+. * Simple regression of GDP on total GLP
+. ***************************************
+.                          
+. generate Total_GLP = SHG_GLP + MFI_GLP
+{txt}
+{com}. 
+. * Scatter plot
+. twoway (scatter GDP Total_GLP) (lfit GDP Total_GLP), ytitle(State-level GDP) ///
+> xtitle(State-level total GLP) title(Correlation between state-level GDP & total GLP (lakh INR) ) ///
+> note(Data source: SMFI report; BMR report; RBI publications (2009-2013)) legend(off) ///
+> scheme(s1mono) name(Graph101_GDP_GLP, replace)
+{res}{txt}
+{com}. 
+. * Regression
+. regress GDP Total_GLP, vce(cluster State_UT_ID)
+
+{txt}Linear regression                                      Number of obs ={res}     160
+                                                       {txt}F(  1,    31) ={res}    8.09
+                                                       {txt}Prob > F      = {res} 0.0078
+                                                       {txt}R-squared     = {res} 0.2816
+                                                       {txt}Root MSE      = {res} 1.5e+07
+
+{txt}{ralign 78:(Std. Err. adjusted for {res:32} clusters in State_UT_ID)}
+{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}         GDP{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 3}Total_GLP {c |}{col 14}{res}{space 2} 24.68882{col 26}{space 2} 8.680629{col 37}{space 1}    2.84{col 46}{space 3}0.008{col 54}{space 4} 6.984558{col 67}{space 3} 42.39307
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 1.10e+07{col 26}{space 2}  2686660{col 37}{space 1}    4.10{col 46}{space 3}0.000{col 54}{space 4}  5527375{col 67}{space 3} 1.65e+07
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. ***********************************************
+. * Simple regression of log GDP on log total GLP
+. ***********************************************
+. 
+. * Generate ln values
+. generate Ln_GDP = ln(GDP)
+{txt}
+{com}. generate Ln_Total_GLP = ln(Total_GLP)
+{txt}(1 missing value generated)
+
+{com}. 
+. * Scatter plot
+. twoway (scatter Ln_GDP Ln_Total_GLP) (lfit Ln_GDP Ln_Total_GLP), ytitle(State-level ln(GDP)) ///
+> xtitle(State-level ln(Total GLP)) title(Correlation between state-level ln(GDP) & ln(Total GLP)) ///
+> note(Data source: SMFI report; BMR report; RBI publications (2009-2013)) legend(off) ///
+> scheme(s1mono) name(Graph102_lnGDP_lnGLP, replace)
+{res}{txt}
+{com}.  
+. * Regression
+. regress Ln_GDP Ln_Total_GLP, vce(cluster State_UT_ID)
+
+{txt}Linear regression                                      Number of obs ={res}     159
+                                                       {txt}F(  1,    31) ={res}  117.38
+                                                       {txt}Prob > F      = {res} 0.0000
+                                                       {txt}R-squared     = {res} 0.7233
+                                                       {txt}Root MSE      = {res} .83846
+
+{txt}{ralign 78:(Std. Err. adjusted for {res:32} clusters in State_UT_ID)}
+{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}      Ln_GDP{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+Ln_Total_GLP {c |}{col 14}{res}{space 2} .5956686{col 26}{space 2} .0549814{col 37}{space 1}   10.83{col 46}{space 3}0.000{col 54}{space 4} .4835332{col 67}{space 3}  .707804
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 9.513743{col 26}{space 2} .6273442{col 37}{space 1}   15.17{col 46}{space 3}0.000{col 54}{space 4} 8.234266{col 67}{space 3} 10.79322
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. 
+. 
+. ********************************************************************************
+. * Malegam (2011) regulation shock on MFIs in India
+. * Institutional level D-i-D regression to study the effect of regulation on MFIs
+. * Data source: Mr. Rehbein's MFI dataset 
+. ********************************************************************************
+. 
+. use "MFIs_Stata13.dta", clear
+{txt}
+{com}. 
+. set more off
+{txt}
+{com}.   
+. * Keep useful variables
+. * Keeping year > 2008 means keeping year == 2009,2010,2011,2012,2013,2014
+. * Keeping Period == "ANN" means dropping year == 2013 & year == 2014
+. keep if Country == "India" 
+{txt}(14425 observations deleted)
+
+{com}. keep if year > 2008 
+{txt}(559 observations deleted)
+
+{com}. keep if Period == "ANN" 
+{txt}(112 observations deleted)
+
+{com}. 
+. * Drop outliers
+. drop if MFIname == "GMSSS"  
+{txt}(4 observations deleted)
+
+{com}. drop if MFIname == "CSF"
+{txt}(0 observations deleted)
+
+{com}. 
+. * Drop MFIs exist only before or only after regulation shock
+. sort MFIID year
+{txt}
+{com}. by MFIID: egen count = count(year)
+{txt}
+{com}. order MFIID MFIname count
+{txt}
+{com}. sort count MFIname year
+{txt}
+{com}. drop if count == 1
+{txt}(12 observations deleted)
+
+{com}. 
+. drop if MFIname == "AMIL" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "AMMACTS" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "Belstar" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "CReSA" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "GMF" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "IFMR Rural Channels" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "India's Capital Trust Ltd" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "Janodaya" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "M-power" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "NFPL" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "Nano" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "RASS" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "RORES" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "SEWA MACTS" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "SVSDF" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "Saadhana" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "Share MACTS" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "Swayamshree Micro Credit Services" 
+{txt}(2 observations deleted)
+
+{com}. drop if MFIname == "VFPL" 
+{txt}(2 observations deleted)
+
+{com}. 
+. * Descriptive statistics
+. summarize GrossLoanPortfolio if GrossLoanPortfolio != 0 
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+GrossLoanP~o {c |}{res}       407    4.57e+07    1.26e+08      56234   9.61e+08
+{txt}
+{com}. summarize Numberofloansoutstanding
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Numberoflo~g {c |}{res}       391    310763.4    834777.8        519    6242266
+{txt}
+{com}. summarize Numberofactiveborrowers 
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Numberofac~s {c |}{res}       399    284024.3    768836.1        519    6242266
+{txt}
+{com}. summarize Offices 
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+{space 5}Offices {c |}{res}       333    135.0751    320.7663          1       2380
+{txt}
+{com}. summarize Personnel
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+{space 3}Personnel {c |}{res}       400      939.86    2406.871          9      22733
+{txt}
+{com}. summarize Portfolioatriskgt30days if Portfolioatriskgt30days <= 1
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Portf~30days {c |}{res}       321    .0702539    .1871417          0      .9998
+{txt}
+{com}. summarize Portfolioatriskgt90days if Portfolioatriskgt90days <= 1
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Portf~90days {c |}{res}       321    .0599224    .1793888          0      .9997
+{txt}
+{com}. summarize Returnonassets
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Returnonas~s {c |}{res}       349   -.0041072    .0990559     -.7282       .152
+{txt}
+{com}. 
+. * Descriptive statistics for 2010 to get mean value before regulation
+. summarize GrossLoanPortfolio if year == 2010 & GrossLoanPortfolio != 0
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+GrossLoanP~o {c |}{res}       114    4.68e+07    1.37e+08     281751   9.26e+08
+{txt}
+{com}. summarize Numberofloansoutstanding if year == 2010
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Numberoflo~g {c |}{res}       106    330139.2    931483.6       1605    6242266
+{txt}
+{com}. summarize Numberofactiveborrowers if year == 2010
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Numberofac~s {c |}{res}       108    299728.4    847958.2       1605    6242266
+{txt}
+{com}. summarize Offices if year == 2010
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+{space 5}Offices {c |}{res}        76    165.8421    390.7653          3       2380
+{txt}
+{com}. summarize Personnel if year == 2010
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+{space 3}Personnel {c |}{res}       109    1030.844    2797.044         11      22733
+{txt}
+{com}. summarize Portfolioatriskgt30days if year == 2010 & Portfolioatriskgt30days <= 1
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Portf~30days {c |}{res}        75    .0960893    .2170123          0       .994
+{txt}
+{com}. summarize Portfolioatriskgt90days if year == 2010 & Portfolioatriskgt90days <= 1
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Portf~90days {c |}{res}        75    .0753267    .1976033          0      .9651
+{txt}
+{com}. summarize Returnonassets if year == 2010
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Returnonas~s {c |}{res}        92    .0146076     .042152     -.2192      .1355
+{txt}
+{com}. 
+. * Set global variables
+. global institution_final GrossLoanPortfolio Numberofloansoutstanding Numberofactiveborrowers ///
+>                          Offices Personnel Portfolioatriskgt30days Portfolioatriskgt90days Returnonassets
+{txt}
+{com}.                                                  
+. global institution_final_PlaceboTest GrossLoanPortfolio Numberofloansoutstanding Numberofactiveborrowers ///
+>                          Offices Personnel Portfolioatriskgt30days Portfolioatriskgt90days Returnonassets 
+{txt}
+{com}.                                    
+.       
+. ***************************
+. * First-step identification
+. ***************************
+. * "NBFI-MFI" is affected by the regulation shock, while "other MFI" is unaffected
+. * So "NBFI-MFI" is in the treatment group and "other MFI" is in the control group
+. 
+. * Generate dummy variables for affected/unaffected and before/after shock
+. generate Dir_affected = 0
+{txt}
+{com}. replace Dir_affected = 1 if Currentlegalstatus == "NBFI"
+{txt}(222 real changes made)
+
+{com}. 
+. generate Post = year > 2010
+{txt}
+{com}. 
+. summarize Dir_affected
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Dir_affected {c |}{res}       409    .5427873     .498776          0          1
+{txt}
+{com}. 
+. ******************
+. * D-i-D regression
+. ******************
+. 
+. * D-i-D Regression with consideration of fixed effects (2010-2012)
+. foreach x of global institution_final {c -(}
+{txt}  2{com}. 
+. reghdfe `x' i.Post##i.Dir_affected if year != 2009, absorb(MFIID year) vce(cluster MFIID)
+{txt}  3{com}. 
+. {c )-}
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 4 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       311
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}    113{txt}){col 67}= {res}      2.21
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.1398
+{txt}{col 51}R-squared{col 67}= {res}    0.9175
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.8675
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0162
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}       114{txt}{col 51}Root MSE{col 67}= {res} 4.442e+07
+
+{txt}{ralign 83:(Std. Err. adjusted for {res:114} clusters in MFIID)}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}GrossLoanPortfo~o{col 19}{c |}      Coef.{col 31}   Std. Err.{col 43}      t{col 51}   P>|t|{col 59}     [95% Con{col 72}f. Interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 3}1.Dir_affected {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 17} {c |}
+Post#Dir_affected {c |}
+{space 13}1 1  {c |}{col 19}{res}{space 2}-1.89e+07{col 31}{space 2} 1.27e+07{col 42}{space 1}   -1.49{col 51}{space 3}0.140{col 59}{space 4}-4.42e+07{col 72}{space 3}  6291465
+{txt}{space 17} {c |}
+{space 12}_cons {c |}{col 19}{res}{space 2} 5.19e+07{col 31}{space 2}  4463165{col 42}{space 1}   11.63{col 51}{space 3}0.000{col 59}{space 4} 4.31e+07{col 72}{space 3} 6.07e+07
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}      114{col 27}{space 1}      114{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 4 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 4 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       297
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}    109{txt}){col 67}= {res}      4.61
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0339
+{txt}{col 51}R-squared{col 67}= {res}    0.9553
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9277
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0277
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}       110{txt}{col 51}Root MSE{col 67}= {res} 2.180e+05
+
+{txt}{ralign 83:(Std. Err. adjusted for {res:110} clusters in MFIID)}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}Numberofloansou~g{col 19}{c |}      Coef.{col 31}   Std. Err.{col 43}      t{col 51}   P>|t|{col 59}     [95% Con{col 72}f. Interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 3}1.Dir_affected {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 17} {c |}
+Post#Dir_affected {c |}
+{space 13}1 1  {c |}{col 19}{res}{space 2}-124138.6{col 31}{space 2} 57799.13{col 42}{space 1}   -2.15{col 51}{space 3}0.034{col 59}{space 4}-238694.6{col 72}{space 3}-9582.596
+{txt}{space 17} {c |}
+{space 12}_cons {c |}{col 19}{res}{space 2} 348690.9{col 31}{space 2} 20628.65{col 42}{space 1}   16.90{col 51}{space 3}0.000{col 59}{space 4} 307805.6{col 72}{space 3} 389576.3
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}      110{col 27}{space 1}      110{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 4 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 4 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       299
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}    109{txt}){col 67}= {res}      3.54
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0627
+{txt}{col 51}R-squared{col 67}= {res}    0.9596
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9349
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0199
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}       110{txt}{col 51}Root MSE{col 67}= {res} 1.965e+05
+
+{txt}{ralign 83:(Std. Err. adjusted for {res:110} clusters in MFIID)}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}Numberofactiveb~s{col 19}{c |}      Coef.{col 31}   Std. Err.{col 43}      t{col 51}   P>|t|{col 59}     [95% Con{col 72}f. Interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 3}1.Dir_affected {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 17} {c |}
+Post#Dir_affected {c |}
+{space 13}1 1  {c |}{col 19}{res}{space 2}-93999.37{col 31}{space 2} 49979.09{col 42}{space 1}   -1.88{col 51}{space 3}0.063{col 59}{space 4}-193056.3{col 72}{space 3} 5057.555
+{txt}{space 17} {c |}
+{space 12}_cons {c |}{col 19}{res}{space 2} 322764.7{col 31}{space 2} 18052.65{col 42}{space 1}   17.88{col 51}{space 3}0.000{col 59}{space 4} 286984.9{col 72}{space 3} 358544.4
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}      110{col 27}{space 1}      110{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 18 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 4 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       246
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     95{txt}){col 67}= {res}      3.28
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0732
+{txt}{col 51}R-squared{col 67}= {res}    0.9621
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9364
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0219
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}        96{txt}{col 51}Root MSE{col 67}= {res}   82.0822
+
+{txt}{ralign 83:(Std. Err. adjusted for {res:96} clusters in MFIID)}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}          Offices{col 19}{c |}      Coef.{col 31}   Std. Err.{col 43}      t{col 51}   P>|t|{col 59}     [95% Con{col 72}f. Interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 3}1.Dir_affected {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 17} {c |}
+Post#Dir_affected {c |}
+{space 13}1 1  {c |}{col 19}{res}{space 2}-44.95022{col 31}{space 2} 24.81476{col 42}{space 1}   -1.81{col 51}{space 3}0.073{col 59}{space 4}-94.21375{col 72}{space 3} 4.313303
+{txt}{space 17} {c |}
+{space 12}_cons {c |}{col 19}{res}{space 2} 158.0088{col 31}{space 2} 9.784682{col 42}{space 1}   16.15{col 51}{space 3}0.000{col 59}{space 4} 138.5838{col 72}{space 3} 177.4339
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}       96{col 27}{space 1}       96{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 4 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 4 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       301
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}    109{txt}){col 67}= {res}      5.62
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0195
+{txt}{col 51}R-squared{col 67}= {res}    0.9209
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.8732
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0307
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}       110{txt}{col 51}Root MSE{col 67}= {res}  837.5997
+
+{txt}{ralign 83:(Std. Err. adjusted for {res:110} clusters in MFIID)}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}        Personnel{col 19}{c |}      Coef.{col 31}   Std. Err.{col 43}      t{col 51}   P>|t|{col 59}     [95% Con{col 72}f. Interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 3}1.Dir_affected {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 17} {c |}
+Post#Dir_affected {c |}
+{space 13}1 1  {c |}{col 19}{res}{space 2}-499.9222{col 31}{space 2} 210.9007{col 42}{space 1}   -2.37{col 51}{space 3}0.020{col 59}{space 4}-917.9205{col 72}{space 3}-81.92396
+{txt}{space 17} {c |}
+{space 12}_cons {c |}{col 19}{res}{space 2} 1114.966{col 31}{space 2} 74.97133{col 42}{space 1}   14.87{col 51}{space 3}0.000{col 59}{space 4}  966.375{col 72}{space 3} 1263.556
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}      110{col 27}{space 1}      110{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 19 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 4 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       236
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     91{txt}){col 67}= {res}      0.22
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.6370
+{txt}{col 51}R-squared{col 67}= {res}    0.4289
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0413
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0011
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}        92{txt}{col 51}Root MSE{col 67}= {res}    0.5428
+
+{txt}{ralign 83:(Std. Err. adjusted for {res:92} clusters in MFIID)}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}Portfolioa~30days{col 19}{c |}      Coef.{col 31}   Std. Err.{col 43}      t{col 51}   P>|t|{col 59}     [95% Con{col 72}f. Interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 3}1.Dir_affected {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 17} {c |}
+Post#Dir_affected {c |}
+{space 13}1 1  {c |}{col 19}{res}{space 2}-.0661575{col 31}{space 2} .1397217{col 42}{space 1}   -0.47{col 51}{space 3}0.637{col 59}{space 4}-.3436975{col 72}{space 3} .2113824
+{txt}{space 17} {c |}
+{space 12}_cons {c |}{col 19}{res}{space 2} .1565494{col 31}{space 2} .0562439{col 42}{space 1}    2.78{col 51}{space 3}0.007{col 59}{space 4} .0448278{col 72}{space 3}  .268271
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}       92{col 27}{space 1}       92{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 19 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 4 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       236
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     91{txt}){col 67}= {res}      0.03
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.8633
+{txt}{col 51}R-squared{col 67}= {res}    0.4386
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0576
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0001
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}        92{txt}{col 51}Root MSE{col 67}= {res}    0.4346
+
+{txt}{ralign 83:(Std. Err. adjusted for {res:92} clusters in MFIID)}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}Portfolioa~90days{col 19}{c |}      Coef.{col 31}   Std. Err.{col 43}      t{col 51}   P>|t|{col 59}     [95% Con{col 72}f. Interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 3}1.Dir_affected {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 17} {c |}
+Post#Dir_affected {c |}
+{space 13}1 1  {c |}{col 19}{res}{space 2}-.0185539{col 31}{space 2}  .107422{col 42}{space 1}   -0.17{col 51}{space 3}0.863{col 59}{space 4}-.2319345{col 72}{space 3} .1948268
+{txt}{space 17} {c |}
+{space 12}_cons {c |}{col 19}{res}{space 2} .1173611{col 31}{space 2} .0432419{col 42}{space 1}    2.71{col 51}{space 3}0.008{col 59}{space 4} .0314663{col 72}{space 3} .2032559
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}       92{col 27}{space 1}       92{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 8 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 4 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       271
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}    102{txt}){col 67}= {res}      4.58
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0347
+{txt}{col 51}R-squared{col 67}= {res}    0.5993
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.3403
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0187
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}       103{txt}{col 51}Root MSE{col 67}= {res}    0.0811
+
+{txt}{ralign 83:(Std. Err. adjusted for {res:103} clusters in MFIID)}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}   Returnonassets{col 19}{c |}      Coef.{col 31}   Std. Err.{col 43}      t{col 51}   P>|t|{col 59}     [95% Con{col 72}f. Interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 3}1.Dir_affected {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 17} {c |}
+Post#Dir_affected {c |}
+{space 13}1 1  {c |}{col 19}{res}{space 2}-.0394889{col 31}{space 2} .0184453{col 42}{space 1}   -2.14{col 51}{space 3}0.035{col 59}{space 4} -.076075{col 72}{space 3}-.0029028
+{txt}{space 17} {c |}
+{space 12}_cons {c |}{col 19}{res}{space 2} .0098204{col 31}{space 2} .0071467{col 42}{space 1}    1.37{col 51}{space 3}0.172{col 59}{space 4} -.004355{col 72}{space 3} .0239958
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}      103{col 27}{space 1}      103{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}. 
+. 
+. **************
+. * Placebo test
+. **************
+. * Use pre-treatment period 2009-2010 as the fake period, 2009 as before shock, 2010 as after shock
+. generate Post_1 = year > 2009
+{txt}
+{com}. 
+. foreach x of global institution_final_PlaceboTest {c -(}
+{txt}  2{com}. 
+. reghdfe `x' i.Post_1##i.Dir_affected if year != 2011 & year != 2012, absorb(MFIID year) vce(cluster MFIID)
+{txt}  3{com}. 
+. {c )-}
+{res}{txt}(dropped 17 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       194
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     96{txt}){col 67}= {res}      3.12
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0804
+{txt}{col 51}R-squared{col 67}= {res}    0.9889
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9773
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0283
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}        97{txt}{col 51}Root MSE{col 67}= {res} 2.142e+07
+
+{txt}{ralign 85:(Std. Err. adjusted for {res:97} clusters in MFIID)}
+{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 21}{c |}{col 33}    Robust
+{col 1} GrossLoanPortfolio{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post_1 {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 5}1.Dir_affected {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 19} {c |}
+Post_1#Dir_affected {c |}
+{space 15}1 1  {c |}{col 21}{res}{space 2} 1.02e+07{col 33}{space 2}  5775561{col 44}{space 1}    1.77{col 53}{space 3}0.080{col 61}{space 4} -1259942{col 74}{space 3} 2.17e+07
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} 4.78e+07{col 33}{space 2}  1548089{col 44}{space 1}   30.90{col 53}{space 3}0.000{col 61}{space 4} 4.48e+07{col 74}{space 3} 5.09e+07
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}       97{col 27}{space 1}       97{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 22 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       174
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     86{txt}){col 67}= {res}      8.04
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0057
+{txt}{col 51}R-squared{col 67}= {res}    0.9949
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9894
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0782
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}        87{txt}{col 51}Root MSE{col 67}= {res} 1.006e+05
+
+{txt}{ralign 85:(Std. Err. adjusted for {res:87} clusters in MFIID)}
+{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 21}{c |}{col 33}    Robust
+{col 1}Numberofloansouts~g{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post_1 {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 5}1.Dir_affected {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 19} {c |}
+Post_1#Dir_affected {c |}
+{space 15}1 1  {c |}{col 21}{res}{space 2}  81629.9{col 33}{space 2} 28790.44{col 44}{space 1}    2.84{col 53}{space 3}0.006{col 61}{space 4} 24396.41{col 74}{space 3} 138863.4
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} 353125.5{col 33}{space 2} 7611.265{col 44}{space 1}   46.40{col 53}{space 3}0.000{col 61}{space 4} 337994.8{col 74}{space 3} 368256.2
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}       87{col 27}{space 1}       87{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 14 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       190
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     94{txt}){col 67}= {res}     13.17
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0005
+{txt}{col 51}R-squared{col 67}= {res}    0.9935
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9866
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.1102
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}        95{txt}{col 51}Root MSE{col 67}= {res}97423.0203
+
+{txt}{ralign 85:(Std. Err. adjusted for {res:95} clusters in MFIID)}
+{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 21}{c |}{col 33}    Robust
+{col 1}Numberofactivebor~s{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post_1 {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 5}1.Dir_affected {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 19} {c |}
+Post_1#Dir_affected {c |}
+{space 15}1 1  {c |}{col 21}{res}{space 2} 95686.28{col 33}{space 2}  26363.1{col 44}{space 1}    3.63{col 53}{space 3}0.000{col 61}{space 4} 43341.73{col 74}{space 3} 148030.8
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} 284976.7{col 33}{space 2} 7076.412{col 44}{space 1}   40.27{col 53}{space 3}0.000{col 61}{space 4} 270926.3{col 74}{space 3}   299027
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}       95{col 27}{space 1}       95{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 13 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       132
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     65{txt}){col 67}= {res}     15.37
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0002
+{txt}{col 51}R-squared{col 67}= {res}    0.9901
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9795
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.1458
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}        66{txt}{col 51}Root MSE{col 67}= {res}   54.7666
+
+{txt}{ralign 85:(Std. Err. adjusted for {res:66} clusters in MFIID)}
+{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 21}{c |}{col 33}    Robust
+{col 1}            Offices{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post_1 {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 5}1.Dir_affected {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 19} {c |}
+Post_1#Dir_affected {c |}
+{space 15}1 1  {c |}{col 21}{res}{space 2}  63.5755{col 33}{space 2} 16.21668{col 44}{space 1}    3.92{col 53}{space 3}0.000{col 61}{space 4} 31.18856{col 74}{space 3} 95.96244
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} 150.6936{col 33}{space 2} 4.791291{col 44}{space 1}   31.45{col 53}{space 3}0.000{col 61}{space 4} 141.1247{col 74}{space 3} 160.2625
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}       66{col 27}{space 1}       66{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 18 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       186
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     92{txt}){col 67}= {res}     10.80
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0014
+{txt}{col 51}R-squared{col 67}= {res}    0.9927
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9849
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0998
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}        93{txt}{col 51}Root MSE{col 67}= {res}  346.9041
+
+{txt}{ralign 85:(Std. Err. adjusted for {res:93} clusters in MFIID)}
+{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 21}{c |}{col 33}    Robust
+{col 1}          Personnel{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post_1 {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 5}1.Dir_affected {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 19} {c |}
+Post_1#Dir_affected {c |}
+{space 15}1 1  {c |}{col 21}{res}{space 2} 321.8752{col 33}{space 2} 97.95937{col 44}{space 1}    3.29{col 53}{space 3}0.001{col 61}{space 4} 127.3195{col 74}{space 3}  516.431
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} 1009.716{col 33}{space 2}  25.8065{col 44}{space 1}   39.13{col 53}{space 3}0.000{col 61}{space 4} 958.4617{col 74}{space 3}  1060.97
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}       93{col 27}{space 1}       93{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 15 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       128
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     63{txt}){col 67}= {res}      0.01
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.9255
+{txt}{col 51}R-squared{col 67}= {res}    0.5329
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0276
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0001
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}        64{txt}{col 51}Root MSE{col 67}= {res}    0.1693
+
+{txt}{ralign 85:(Std. Err. adjusted for {res:64} clusters in MFIID)}
+{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 21}{c |}{col 33}    Robust
+{col 1}Portfolioatr~30days{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post_1 {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 5}1.Dir_affected {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 19} {c |}
+Post_1#Dir_affected {c |}
+{space 15}1 1  {c |}{col 21}{res}{space 2} .0056931{col 33}{space 2} .0606781{col 44}{space 1}    0.09{col 53}{space 3}0.926{col 61}{space 4}-.1155624{col 74}{space 3} .1269486
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} .0628278{col 33}{space 2} .0175398{col 44}{space 1}    3.58{col 53}{space 3}0.001{col 61}{space 4} .0277774{col 74}{space 3} .0978782
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}       64{col 27}{space 1}       64{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 15 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       128
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     63{txt}){col 67}= {res}      0.01
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.9167
+{txt}{col 51}R-squared{col 67}= {res}    0.5270
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0153
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0002
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}        64{txt}{col 51}Root MSE{col 67}= {res}    0.1541
+
+{txt}{ralign 85:(Std. Err. adjusted for {res:64} clusters in MFIID)}
+{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 21}{c |}{col 33}    Robust
+{col 1}Portfolioatr~90days{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post_1 {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 5}1.Dir_affected {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 19} {c |}
+Post_1#Dir_affected {c |}
+{space 15}1 1  {c |}{col 21}{res}{space 2}-.0059006{col 33}{space 2} .0561583{col 44}{space 1}   -0.11{col 53}{space 3}0.917{col 61}{space 4} -.118124{col 74}{space 3} .1063228
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} .0523424{col 33}{space 2} .0162333{col 44}{space 1}    3.22{col 53}{space 3}0.002{col 61}{space 4} .0199028{col 74}{space 3} .0847819
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}       64{col 27}{space 1}       64{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 22 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}1bn.Dir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: 1.Dir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       140
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     69{txt}){col 67}= {res}      0.87
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.3550
+{txt}{col 51}R-squared{col 67}= {res}    0.7830
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.5499
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0094
+{txt}{col 1}Number of clusters ({res}MFIID{txt}) {col 30}= {res}        70{txt}{col 51}Root MSE{col 67}= {res}    0.0521
+
+{txt}{ralign 85:(Std. Err. adjusted for {res:70} clusters in MFIID)}
+{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 21}{c |}{col 33}    Robust
+{col 1}     Returnonassets{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}1.Post_1 {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 5}1.Dir_affected {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 19} {c |}
+Post_1#Dir_affected {c |}
+{space 15}1 1  {c |}{col 21}{res}{space 2} .0143536{col 33}{space 2} .0154136{col 44}{space 1}    0.93{col 53}{space 3}0.355{col 61}{space 4}-.0163957{col 74}{space 3} .0451028
+{txt}{space 19} {c |}
+{space 14}_cons {c |}{col 21}{res}{space 2} .0017946{col 33}{space 2} .0046241{col 44}{space 1}    0.39{col 53}{space 3}0.699{col 61}{space 4}-.0074301{col 74}{space 3} .0110194
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       MFIID{col 14}{c |}{space 1}       70{col 27}{space 1}       70{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}. 
+. 
+. 
+. ********************************************************************************
+. * Malegam (2011) regulation shock on MFIs(NBFCs) in India
+. * State level D-i-D regression to study the effect of shock on economic development
+. * Data source: SHG report(2009-2013);BMR MFI report(2009-2013)
+. ********************************************************************************
+. 
+. use "State_Stata13.dta", clear 
+{txt}
+{com}. 
+. set more off
+{txt}
+{com}. 
+. * Generate total gross loan portfolio 
+. generate Total_GLP = SHG_GLP + MFI_GLP
+{txt}
+{com}. 
+. * Generate  ln values
+. generate Ln_GDP = ln(GDP)
+{txt}
+{com}. generate Ln_Total_GLP = ln(Total_GLP)
+{txt}(1 missing value generated)
+
+{com}. generate Ln_MFI_GLP = ln(MFI_GLP)
+{txt}(19 missing values generated)
+
+{com}. 
+. * Descriptive statistics
+. summarize MFI_GLP
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+{space 5}MFI_GLP {c |}{res}       160    72185.88      116983          0     593400
+{txt}
+{com}. summarize Total_GLP
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+{space 3}Total_GLP {c |}{res}       160    183374.6    382952.1          0    2450904
+{txt}
+{com}. summarize MFI_Clients
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+{space 1}MFI_Clients {c |}{res}       160    9.140438    14.10928          0       62.5
+{txt}
+{com}. summarize GDP
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+{space 9}GDP {c |}{res}       160    1.55e+07    1.78e+07     320792   8.97e+07
+{txt}
+{com}. summarize Drop_Out_Rate
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Drop_Out_R~e {c |}{res}       133    6.600075    4.806423         .1      24.11
+{txt}
+{com}. summarize Unemploy_Rural_Overall
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Unemploy_R~l {c |}{res}        63    32.46032    40.22831          3        247
+{txt}
+{com}. summarize Poverty_Rate
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Poverty_Rate {c |}{res}        64    20.74266    12.36181         .4       53.5
+{txt}
+{com}. 
+. * Generate global variables
+. 
+. global state_final1 Ln_MFI_GLP Ln_Total_GLP MFI_Clients Ln_GDP Drop_Out_Rate 
+{txt}
+{com}.                    
+. global state_final2 Unemploy_Rural_Overall Poverty_Rate
+{txt}
+{com}.                                    
+. global state_final_PlaceboTest Ln_MFI_GLP Ln_Total_GLP MFI_Clients Ln_GDP Drop_Out_Rate 
+{txt}
+{com}. 
+.              
+. ****************************
+. * Second-step identification
+. ****************************
+. * Only MFI model is affected, while SHG model is unaffected
+. * The share of MFI GLP in the microfinance sector before the regulation shock shows exposure to the shock
+. * State with higher share of MFI is more indirectly affected
+. * State with lower share of MFI is less indirectly affected
+. 
+. * Use the data at the end of financial year 2010-2011 to compute the MFI GLP share 
+. generate Total_GLP2010 = SHG_GLP2010 + MFI_GLP2010
+{txt}
+{com}. generate MFIshare2010 = MFI_GLP2010 / Total_GLP2010
+{txt}
+{com}. 
+. * Indicate the intensity of indirect effect of the regulation shock (2011) on each state
+. generate Indir_affected = MFIshare2010
+{txt}
+{com}. 
+. summarize Indir_affected
+
+{txt}    Variable {c |}       Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 56}
+Indir_affe~d {c |}{res}       160    .3541536    .2546497          0   .9539012
+{txt}
+{com}. 
+. * Indicate before and after regulation shock
+. generate Post = Year > 2010
+{txt}
+{com}. 
+. 
+. *********************
+. * D-i-D regression 
+. *********************
+. 
+. * Continuous D-i-D Regression with consideration of fixed effects (2010-2012)
+. foreach x of global state_final1 {c -(}
+{txt}  2{com}. 
+. reghdfe `x' i.Post##c.Indir_affected if Year != 2009 & Year != 2013, absorb(State_UT_ID Year) vce(cluster State_UT_ID)
+{txt}  3{com}. 
+. {c )-}
+{res}{txt}(dropped 4 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}Indir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 3 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: Indir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}        80
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     26{txt}){col 67}= {res}      0.41
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.5298
+{txt}{col 51}R-squared{col 67}= {res}    0.9617
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9383
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0176
+{txt}{col 1}Number of clusters ({res}State_UT_ID{txt}) {col 30}= {res}        27{txt}{col 51}Root MSE{col 67}= {res}    0.5577
+
+{txt}{ralign 87:(Std. Err. adjusted for {res:27} clusters in State_UT_ID)}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}           Ln_MFI_GLP{col 23}{c |}      Coef.{col 35}   Std. Err.{col 47}      t{col 55}   P>|t|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 15}1.Post {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 7}Indir_affected {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 21} {c |}
+Post#c.Indir_affected {c |}
+{space 19}1  {c |}{col 23}{res}{space 2}-.5665379{col 35}{space 2} .8895801{col 46}{space 1}   -0.64{col 55}{space 3}0.530{col 63}{space 4}-2.395096{col 76}{space 3}  1.26202
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 10.01139{col 35}{space 2} .2517671{col 46}{space 1}   39.76{col 55}{space 3}0.000{col 63}{space 4} 9.493871{col 76}{space 3}  10.5289
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text} State_UT_ID{col 14}{c |}{space 1}       27{col 27}{space 1}       27{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        Year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}Indir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: Indir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}        96
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     31{txt}){col 67}= {res}      0.76
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.3908
+{txt}{col 51}R-squared{col 67}= {res}    0.9741
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9590
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0251
+{txt}{col 1}Number of clusters ({res}State_UT_ID{txt}) {col 30}= {res}        32{txt}{col 51}Root MSE{col 67}= {res}    0.4621
+
+{txt}{ralign 87:(Std. Err. adjusted for {res:32} clusters in State_UT_ID)}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}         Ln_Total_GLP{col 23}{c |}      Coef.{col 35}   Std. Err.{col 47}      t{col 55}   P>|t|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 15}1.Post {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 7}Indir_affected {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 21} {c |}
+Post#c.Indir_affected {c |}
+{space 19}1  {c |}{col 23}{res}{space 2}-.4893685{col 35}{space 2} .5622517{col 46}{space 1}   -0.87{col 55}{space 3}0.391{col 63}{space 4}-1.636088{col 76}{space 3} .6573514
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2}  10.3951{col 35}{space 2}  .132749{col 46}{space 1}   78.31{col 55}{space 3}0.000{col 63}{space 4} 10.12435{col 76}{space 3} 10.66584
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text} State_UT_ID{col 14}{c |}{space 1}       32{col 27}{space 1}       32{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        Year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}Indir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: Indir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}        96
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     31{txt}){col 67}= {res}      3.20
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0832
+{txt}{col 51}R-squared{col 67}= {res}    0.9626
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9407
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0665
+{txt}{col 1}Number of clusters ({res}State_UT_ID{txt}) {col 30}= {res}        32{txt}{col 51}Root MSE{col 67}= {res}    3.2799
+
+{txt}{ralign 87:(Std. Err. adjusted for {res:32} clusters in State_UT_ID)}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}          MFI_Clients{col 23}{c |}      Coef.{col 35}   Std. Err.{col 47}      t{col 55}   P>|t|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 15}1.Post {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 7}Indir_affected {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 21} {c |}
+Post#c.Indir_affected {c |}
+{space 19}1  {c |}{col 23}{res}{space 2}-5.782933{col 35}{space 2} 3.230892{col 46}{space 1}   -1.79{col 55}{space 3}0.083{col 63}{space 4}-12.37238{col 76}{space 3} .8065156
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 10.36839{col 35}{space 2} .7628214{col 46}{space 1}   13.59{col 55}{space 3}0.000{col 63}{space 4} 8.812601{col 76}{space 3} 11.92417
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text} State_UT_ID{col 14}{c |}{space 1}       32{col 27}{space 1}       32{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        Year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}Indir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: Indir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}        96
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     31{txt}){col 67}= {res}      0.67
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.4198
+{txt}{col 51}R-squared{col 67}= {res}    0.9999
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9998
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0172
+{txt}{col 1}Number of clusters ({res}State_UT_ID{txt}) {col 30}= {res}        32{txt}{col 51}Root MSE{col 67}= {res}    0.0239
+
+{txt}{ralign 87:(Std. Err. adjusted for {res:32} clusters in State_UT_ID)}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}               Ln_GDP{col 23}{c |}      Coef.{col 35}   Std. Err.{col 47}      t{col 55}   P>|t|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 15}1.Post {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 7}Indir_affected {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 21} {c |}
+Post#c.Indir_affected {c |}
+{space 19}1  {c |}{col 23}{res}{space 2} .0208617{col 35}{space 2} .0255147{col 46}{space 1}    0.82{col 55}{space 3}0.420{col 63}{space 4} -.031176{col 76}{space 3} .0728993
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 15.64614{col 35}{space 2} .0060241{col 46}{space 1} 2597.26{col 55}{space 3}0.000{col 63}{space 4} 15.63385{col 76}{space 3} 15.65843
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text} State_UT_ID{col 14}{c |}{space 1}       32{col 27}{space 1}       32{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        Year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 5 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}Indir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 4 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: Indir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}        72
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     24{txt}){col 67}= {res}      1.12
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.3010
+{txt}{col 51}R-squared{col 67}= {res}    0.8181
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.6997
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0243
+{txt}{col 1}Number of clusters ({res}State_UT_ID{txt}) {col 30}= {res}        25{txt}{col 51}Root MSE{col 67}= {res}    2.3719
+
+{txt}{ralign 87:(Std. Err. adjusted for {res:25} clusters in State_UT_ID)}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}        Drop_Out_Rate{col 23}{c |}      Coef.{col 35}   Std. Err.{col 47}      t{col 55}   P>|t|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 15}1.Post {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 7}Indir_affected {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 21} {c |}
+Post#c.Indir_affected {c |}
+{space 19}1  {c |}{col 23}{res}{space 2}-2.689749{col 35}{space 2} 2.544379{col 46}{space 1}   -1.06{col 55}{space 3}0.301{col 63}{space 4}-7.941088{col 76}{space 3} 2.561591
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 7.569372{col 35}{space 2} .6146701{col 46}{space 1}   12.31{col 55}{space 3}0.000{col 63}{space 4} 6.300755{col 76}{space 3} 8.837989
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text} State_UT_ID{col 14}{c |}{space 1}       25{col 27}{space 1}       25{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        Year{col 14}{c |}{space 1}        3{col 27}{space 1}        0{col 39}{result}{space 1}        3{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}. 
+. * Continuous D-i-D Regression with consideration of fixed effects (2009 & 2011)
+. foreach x of global state_final2 {c -(}
+{txt}  2{com}. 
+. reghdfe `x' i.Post##c.Indir_affected if Year != 2010 & Year != 2012 & Year != 2013, absorb(State_UT_ID Year) vce(cluster State_UT_ID)
+{txt}  3{com}. 
+. {c )-}
+{res}{txt}(dropped 1 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}Indir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: Indir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}        62
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     30{txt}){col 67}= {res}      0.51
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.4810
+{txt}{col 51}R-squared{col 67}= {res}    0.9169
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.8190
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0414
+{txt}{col 1}Number of clusters ({res}State_UT_ID{txt}) {col 30}= {res}        31{txt}{col 51}Root MSE{col 67}= {res}   12.6082
+
+{txt}{ralign 87:(Std. Err. adjusted for {res:31} clusters in State_UT_ID)}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}Unemploy_Rural_Over~l{col 23}{c |}      Coef.{col 35}   Std. Err.{col 47}      t{col 55}   P>|t|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 15}1.Post {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 7}Indir_affected {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 21} {c |}
+Post#c.Indir_affected {c |}
+{space 19}1  {c |}{col 23}{res}{space 2} 14.10058{col 35}{space 2} 19.75933{col 46}{space 1}    0.71{col 55}{space 3}0.481{col 63}{space 4}-26.25335{col 76}{space 3} 54.45451
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 26.42257{col 35}{space 2} 3.611786{col 46}{space 1}    7.32{col 55}{space 3}0.000{col 63}{space 4} 19.04632{col 76}{space 3} 33.79882
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text} State_UT_ID{col 14}{c |}{space 1}       31{col 27}{space 1}       31{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        Year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}note: {res}1bn.Post{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}Indir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post omitted because of collinearity
+{txt}note: Indir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}        64
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     31{txt}){col 67}= {res}      6.89
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0133
+{txt}{col 51}R-squared{col 67}= {res}    0.9496
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.8905
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.1722
+{txt}{col 1}Number of clusters ({res}State_UT_ID{txt}) {col 30}= {res}        32{txt}{col 51}Root MSE{col 67}= {res}    4.0899
+
+{txt}{ralign 87:(Std. Err. adjusted for {res:32} clusters in State_UT_ID)}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}         Poverty_Rate{col 23}{c |}      Coef.{col 35}   Std. Err.{col 47}      t{col 55}   P>|t|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 15}1.Post {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 7}Indir_affected {c |}{col 23}{res}{space 2}        0{col 35}{txt}  (omitted)
+{space 21} {c |}
+Post#c.Indir_affected {c |}
+{space 19}1  {c |}{col 23}{res}{space 2}-9.891451{col 35}{space 2} 3.768119{col 46}{space 1}   -2.63{col 55}{space 3}0.013{col 63}{space 4}-17.57658{col 76}{space 3}-2.206322
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2}  22.4942{col 35}{space 2} .6672464{col 46}{space 1}   33.71{col 55}{space 3}0.000{col 63}{space 4} 21.13334{col 76}{space 3} 23.85506
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text} State_UT_ID{col 14}{c |}{space 1}       32{col 27}{space 1}       32{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        Year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}. 
+. 
+. **************
+. * Placebo test
+. **************
+. *Use pre-treatment period 2009-2010 as the fake period, 2009 as before shock, 2010 as after shock
+. generate Post_1 = Year > 2009
+{txt}
+{com}. 
+. * Continuous D-i-D Regression with consideration of fixed effects (2009-2010)
+. foreach x of global state_final_PlaceboTest {c -(}
+{txt}  2{com}. 
+. reghdfe `x' i.Post_1##c.Indir_affected if Year != 2011 & Year != 2012 & Year != 2013, absorb(State_UT_ID Year) vce(cluster State_UT_ID)
+{txt}  3{com}. 
+. {c )-}
+{res}{txt}(dropped 2 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}Indir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: Indir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}        50
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     24{txt}){col 67}= {res}      0.69
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.4149
+{txt}{col 51}R-squared{col 67}= {res}    0.9722
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9381
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0632
+{txt}{col 1}Number of clusters ({res}State_UT_ID{txt}) {col 30}= {res}        25{txt}{col 51}Root MSE{col 67}= {res}    0.5117
+
+{txt}{ralign 89:(Std. Err. adjusted for {res:25} clusters in State_UT_ID)}
+{hline 24}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 25}{c |}{col 37}    Robust
+{col 1}             Ln_MFI_GLP{col 25}{c |}      Coef.{col 37}   Std. Err.{col 49}      t{col 57}   P>|t|{col 65}     [95% Con{col 78}f. Interval]
+{hline 24}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 15}1.Post_1 {c |}{col 25}{res}{space 2}        0{col 37}{txt}  (omitted)
+{space 9}Indir_affected {c |}{col 25}{res}{space 2}        0{col 37}{txt}  (omitted)
+{space 23} {c |}
+Post_1#c.Indir_affected {c |}
+{space 21}1  {c |}{col 25}{res}{space 2} .7914717{col 37}{space 2} .9539152{col 48}{space 1}    0.83{col 57}{space 3}0.415{col 65}{space 4}-1.177313{col 78}{space 3} 2.760256
+{txt}{space 23} {c |}
+{space 18}_cons {c |}{col 25}{res}{space 2} 9.685438{col 37}{space 2}  .205468{col 48}{space 1}   47.14{col 57}{space 3}0.000{col 65}{space 4} 9.261372{col 78}{space 3}  10.1095
+{txt}{hline 24}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text} State_UT_ID{col 14}{c |}{space 1}       25{col 27}{space 1}       25{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        Year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 1 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}Indir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: Indir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}        62
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     30{txt}){col 67}= {res}      0.20
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.6580
+{txt}{col 51}R-squared{col 67}= {res}    0.9884
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9748
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0193
+{txt}{col 1}Number of clusters ({res}State_UT_ID{txt}) {col 30}= {res}        31{txt}{col 51}Root MSE{col 67}= {res}    0.3577
+
+{txt}{ralign 89:(Std. Err. adjusted for {res:31} clusters in State_UT_ID)}
+{hline 24}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 25}{c |}{col 37}    Robust
+{col 1}           Ln_Total_GLP{col 25}{c |}      Coef.{col 37}   Std. Err.{col 49}      t{col 57}   P>|t|{col 65}     [95% Con{col 78}f. Interval]
+{hline 24}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 15}1.Post_1 {c |}{col 25}{res}{space 2}        0{col 37}{txt}  (omitted)
+{space 9}Indir_affected {c |}{col 25}{res}{space 2}        0{col 37}{txt}  (omitted)
+{space 23} {c |}
+Post_1#c.Indir_affected {c |}
+{space 21}1  {c |}{col 25}{res}{space 2}  .270263{col 37}{space 2} .6045102{col 48}{space 1}    0.45{col 57}{space 3}0.658{col 65}{space 4}-.9643115{col 78}{space 3} 1.504837
+{txt}{space 23} {c |}
+{space 18}_cons {c |}{col 25}{res}{space 2} 10.11048{col 37}{space 2} .1104978{col 48}{space 1}   91.50{col 57}{space 3}0.000{col 65}{space 4} 9.884811{col 78}{space 3} 10.33614
+{txt}{hline 24}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text} State_UT_ID{col 14}{c |}{space 1}       31{col 27}{space 1}       31{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        Year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}Indir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: Indir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}        64
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     31{txt}){col 67}= {res}      5.92
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0209
+{txt}{col 51}R-squared{col 67}= {res}    0.9822
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9614
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.2241
+{txt}{col 1}Number of clusters ({res}State_UT_ID{txt}) {col 30}= {res}        32{txt}{col 51}Root MSE{col 67}= {res}    2.9759
+
+{txt}{ralign 89:(Std. Err. adjusted for {res:32} clusters in State_UT_ID)}
+{hline 24}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 25}{c |}{col 37}    Robust
+{col 1}            MFI_Clients{col 25}{c |}      Coef.{col 37}   Std. Err.{col 49}      t{col 57}   P>|t|{col 65}     [95% Con{col 78}f. Interval]
+{hline 24}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 15}1.Post_1 {c |}{col 25}{res}{space 2}        0{col 37}{txt}  (omitted)
+{space 9}Indir_affected {c |}{col 25}{res}{space 2}        0{col 37}{txt}  (omitted)
+{space 23} {c |}
+Post_1#c.Indir_affected {c |}
+{space 21}1  {c |}{col 25}{res}{space 2} 8.482999{col 37}{space 2} 3.485994{col 48}{space 1}    2.43{col 57}{space 3}0.021{col 65}{space 4} 1.373268{col 78}{space 3} 15.59273
+{txt}{space 23} {c |}
+{space 18}_cons {c |}{col 25}{res}{space 2}  7.57817{col 37}{space 2} .6172886{col 48}{space 1}   12.28{col 57}{space 3}0.000{col 65}{space 4} 6.319202{col 78}{space 3} 8.837139
+{txt}{hline 24}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text} State_UT_ID{col 14}{c |}{space 1}       32{col 27}{space 1}       32{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        Year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}Indir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: Indir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}        64
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     31{txt}){col 67}= {res}      0.27
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.6047
+{txt}{col 51}R-squared{col 67}= {res}    0.9999
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.9997
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0087
+{txt}{col 1}Number of clusters ({res}State_UT_ID{txt}) {col 30}= {res}        32{txt}{col 51}Root MSE{col 67}= {res}    0.0277
+
+{txt}{ralign 89:(Std. Err. adjusted for {res:32} clusters in State_UT_ID)}
+{hline 24}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 25}{c |}{col 37}    Robust
+{col 1}                 Ln_GDP{col 25}{c |}      Coef.{col 37}   Std. Err.{col 49}      t{col 57}   P>|t|{col 65}     [95% Con{col 78}f. Interval]
+{hline 24}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 15}1.Post_1 {c |}{col 25}{res}{space 2}        0{col 37}{txt}  (omitted)
+{space 9}Indir_affected {c |}{col 25}{res}{space 2}        0{col 37}{txt}  (omitted)
+{space 23} {c |}
+Post_1#c.Indir_affected {c |}
+{space 21}1  {c |}{col 25}{res}{space 2} .0137796{col 37}{space 2} .0263456{col 48}{space 1}    0.52{col 57}{space 3}0.605{col 65}{space 4}-.0399525{col 78}{space 3} .0675117
+{txt}{space 23} {c |}
+{space 18}_cons {c |}{col 25}{res}{space 2} 15.54119{col 37}{space 2} .0046652{col 48}{space 1} 3331.31{col 57}{space 3}0.000{col 65}{space 4} 15.53168{col 78}{space 3} 15.55071
+{txt}{hline 24}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text} State_UT_ID{col 14}{c |}{space 1}       32{col 27}{space 1}       32{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        Year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}(dropped 3 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}note: {res}1bn.Post_1{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}note: {res}Indir_affected{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 2 iterations)
+{res}{txt}note: 1.Post_1 omitted because of collinearity
+{txt}note: Indir_affected omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}        54
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   1{txt},{res}     26{txt}){col 67}= {res}      0.08
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.7784
+{txt}{col 51}R-squared{col 67}= {res}    0.8489
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.6662
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0031
+{txt}{col 1}Number of clusters ({res}State_UT_ID{txt}) {col 30}= {res}        27{txt}{col 51}Root MSE{col 67}= {res}    2.7015
+
+{txt}{ralign 89:(Std. Err. adjusted for {res:27} clusters in State_UT_ID)}
+{hline 24}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 25}{c |}{col 37}    Robust
+{col 1}          Drop_Out_Rate{col 25}{c |}      Coef.{col 37}   Std. Err.{col 49}      t{col 57}   P>|t|{col 65}     [95% Con{col 78}f. Interval]
+{hline 24}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 15}1.Post_1 {c |}{col 25}{res}{space 2}        0{col 37}{txt}  (omitted)
+{space 9}Indir_affected {c |}{col 25}{res}{space 2}        0{col 37}{txt}  (omitted)
+{space 23} {c |}
+Post_1#c.Indir_affected {c |}
+{space 21}1  {c |}{col 25}{res}{space 2}-.8658309{col 37}{space 2} 3.044661{col 48}{space 1}   -0.28{col 57}{space 3}0.778{col 65}{space 4}-7.124222{col 78}{space 3}  5.39256
+{txt}{space 23} {c |}
+{space 18}_cons {c |}{col 25}{res}{space 2} 7.616672{col 37}{space 2} .5535362{col 48}{space 1}   13.76{col 57}{space 3}0.000{col 65}{space 4} 6.478862{col 78}{space 3} 8.754482
+{txt}{hline 24}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text} State_UT_ID{col 14}{c |}{space 1}       27{col 27}{space 1}       27{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{col 1}{text}        Year{col 14}{c |}{space 1}        2{col 27}{space 1}        0{col 39}{result}{space 1}        2{col 53}{text} {col 54}{c |}
+{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}. 
+. 
+. 
+. * Closing the log file
+. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}D:\Personal\Desktop\GitHub\Project2019_Sanxing_Satwika.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}29 Mar 2020, 14:07:34
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
